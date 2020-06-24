@@ -177,6 +177,10 @@ const keyMap = {
   ']': '_zoomIn',
   pageup: '_zoomIn',
   pagedown: '_zoomOut',
+  '1': '_1',
+  '2': '_2',
+  '3': '_3',
+  '5': '_0.5',
 };
 
 export const getKeyAction = (key) => keyMap[key] || null;

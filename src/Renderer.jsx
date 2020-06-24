@@ -2,13 +2,8 @@
 /* eslint-disable no-param-reassign, no-unused-expressions, no-undef */
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import ZoomControls from './components/ZoomControls';
-import HoverPopup from './components/HoverPopup';
-import Edge from './components/Edge';
-import {
-  ActionLayer,
-  EditLayer,
-} from './renderingLayers';
+import { ZoomControls, HoverPopup, Edge, Node } from './components';
+import { ActionLayer, EditLayer } from './renderingLayers';
 import { inViewPort } from './util';
 
 const MS_PER_RENDER = 30;
@@ -122,6 +117,7 @@ class Renderer extends Component {
     this.animRequest = null;
     this.lastScale = null;
     this.lastRollOver = props.rolloverState;
+    this.lastScreen = null;
   }
 
   componentDidMount() {
@@ -161,17 +157,18 @@ class Renderer extends Component {
     const ps = this.props.panScaleState;
     const is = this.props.interactionState;
     const rs = this.props.rolloverState;
+    const ss = this.props.screen;
     if (
       is.action ||
       ps.destinationPan ||
       ps.destinationScale ||
       ps.scale !== this.lastScale ||
-      rs !== this.lastRollOver
+      rs !== this.lastRollOver ||
+      ss !== this.lastScreen
     ) {
-      console.log('rollover', rs instanceof Edge);
       this.lastScale = ps.scale;
       this.lastRollOver = rs;
-      // console.log('Renderer', interactionState.action, panScaleState.destinationPan, panScaleState.destinationScale);
+      this.lastScreen = ss;
       this.draw();
     }
   };
@@ -202,9 +199,8 @@ class Renderer extends Component {
   drawBounds(bounds) {
     if (!bounds || !this.shapesRef.current) return false;
     const ctx = this.shapesRef.current.getContext('2d');
-    const { panScaleState, screen } = this.props;
+    const { panScaleState } = this.props;
     const { scale, pan } = panScaleState;
-    const { width, height } = screen;
     ctx.save();
     //   ctx.clearRect(0, 0, width, height);
     ctx.transform(scale, 0, 0, scale, pan.x, pan.y);
@@ -230,35 +226,37 @@ class Renderer extends Component {
     ctx.clearRect(0, 0, width, height);
     ctx.transform(scale, 0, 0, scale, pan.x, pan.y);
     items.forEach((i) => {
-      const style = { ...DEFAULT_SHAPE_STYLE, ...(i.style || {}) };
-      // draw
-      ctx.save();
-      ctx.translate(i.x, i.y);
-      ctx.lineWidth = style.lineWidth;
-      ctx.fillStyle = style.background || style.fillColor || style.fill;
-      ctx.strokeStyle =
-        style.border || style.strokeColor || style.stroke || style.line;
-      ctx.beginPath();
-      if (drawingFunction) {
-        drawingFunction(ctx, i);
-      } else {
-        ctx.fillRect(0, 0, i.width, i.height);
-      }
-
-      if (i.shape && i.shape !== 'image') {
-        // not an image
-        ctx.closePath();
-        if (style && style.fill !== null) {
-          ctx.fill();
+      if (i.visible !== false){
+        const style = { ...DEFAULT_SHAPE_STYLE, ...(i.style || {}) };
+        // draw
+        ctx.save();
+        ctx.translate(i.x, i.y);
+        ctx.lineWidth = style.lineWidth;
+        ctx.fillStyle = style.background || style.fillColor || style.fill;
+        ctx.strokeStyle =
+          style.border || style.strokeColor || style.stroke || style.line;
+        ctx.beginPath();
+        if (drawingFunction) {
+          drawingFunction(ctx, i);
+        } else {
+          ctx.fillRect(0, 0, i.width, i.height);
         }
-        ctx.stroke();
-      } else if (i.image) {
-        // image support is a little different
-        const sc = i.scale || 1;
-        ctx.drawImage(i.image, 0, 0, i.width * sc, i.height * sc);
-      }
 
-      ctx.restore();
+        if (i.shape && i.shape !== 'image') {
+          // not an image
+          ctx.closePath();
+          if (style && style.fill !== null) {
+            ctx.fill();
+          }
+          ctx.stroke();
+        } else if (i.image) {
+          // image support is a little different
+          const sc = i.scale || 1;
+          ctx.drawImage(i.image, 0, 0, i.width * sc, i.height * sc);
+        }
+
+        ctx.restore();
+      }
     });
     ctx.restore();
     return true;

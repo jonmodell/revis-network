@@ -1,6 +1,8 @@
 const options = {
   nodes: {
     showLabels: true,
+    defaultSize: 30,
+    scaleCompensation: false,
   },
   edges: {
     showLabels: true,

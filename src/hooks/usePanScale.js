@@ -52,6 +52,18 @@ function panScaleReducer(state, action) {
         case '_zoomOut':
           scale = Math.max(MIN_ZOOM, scale - SCALE_FACTOR / 5);
           break;
+        case '_1':
+          scale = 1;
+          break;
+        case '_2':
+          scale = 2;
+          break;
+        case '_3':
+          scale = 3;
+          break;
+        case '_0.5':
+          scale = 0.5;
+          break;
         default:
           break;
       }

@@ -24,11 +24,11 @@ img6.src =
 
 export const iconMap = {
   a: img1,
-  b: { element: img2, scale: 0.8 },
+  b: { element: img2, scale: 0.8, offsetY: 1 },
   c: img3,
   d: img4,
-  e: { element: img5, offsetX: -1 },
-  f: { element: img6, scale: 0.65, offsetY: -2 },
+  e: { element: img5, offsetX: -0.5 },
+  f: { element: img6, scale: 0.65 },
 
 };
 

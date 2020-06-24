@@ -1,7 +1,7 @@
 const hexRandom = () => Math.floor(Math.random() * 16777215).toString(16);
 const styleRandom = (n) => ({
   border: `#${hexRandom()}`,
-  lineWidth: Math.ceil(Math.random() * (n ? 8 : 4)),
+  lineWidth: 2,
 });
 
 const shapeRandom = () => {
@@ -10,17 +10,16 @@ const shapeRandom = () => {
   ];
 };
 
-const typeRandom = () => {
-  return [
-    'businessservice',
-    'itservice',
-    'deviceservice',
-    'application',
-    'applicationcomponent',
-    'device',
-    'unknown',
+const typeRandom = () =>
+  [
+    { type: 'businessservice', shape: 'hexagon' },
+    { type: 'itservice', shape: 'hexagon' },
+    { type: 'deviceservice', shape: 'hexagon' },
+    { type: 'application', shape: 'diamond' },
+    { type: 'applicationcomponent', shape: 'diamond' },
+    { type: 'device', shape: 'square' },
+    { type: 'unknown', shape: 'circle' },
   ][Math.floor(Math.random() * 7)];
-};
 
 const imageRandom = () => {
   return ['a', 'b', 'c', 'd', 'e', 'f'][Math.floor(Math.random() * 6)];
@@ -33,11 +32,10 @@ const genNodes = (n) => {
     ret.push({
       id: i.toString(),
       label: `node ${i}`,
-      shape: shapeRandom(),
       style: styleRandom(true),
       size: 50,
       image: imageRandom(),
-      type: typeRandom(),
+      ...typeRandom(),
     });
     i--;
   }

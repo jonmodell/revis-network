@@ -73,6 +73,7 @@ const ReVisNetwork = (props: Props) => {
     ratio: 1,
     boundingRect: null,
   });
+
   const screen = () => ({
     width: baseCanvas.current?.clientWidth,
     height: baseCanvas.current?.clientHeight,

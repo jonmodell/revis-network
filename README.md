@@ -55,15 +55,9 @@ Layers are handled outside of the RevisDataset and are expected to be an array o
 
 Revis will create a canvas for each layer and pass the data through its own LayerItem class, which in turn will pass it through the drawing function.  Using foreground and background layers you can render drawings, text or images on seperate layers in front of, or behind, your graph.  See the `LayersandShapesExample.js` file in examples for a demonstration.
 
-## Install and run
+## Install and run Storybook
 
 ```
-npm install
-cd example
-npm start
+yarn
+yarn storybook
 ```
-
-## Example
-The example should open automatically when your run `npm start` on the example folder, but if not go to:
-
-Open http://localhost:3035
