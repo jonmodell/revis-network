@@ -1,0 +1,22 @@
+# dependencies
+/node_modules
+package-lock.json
+
+# testing
+/coverage
+junit.xml
+
+# production
+/dist
+/lib
+
+# misc
+.DS_Store
+.editorconfig
+yarn.lock
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+_package.json
+Jenkinsfile

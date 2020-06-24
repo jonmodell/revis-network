@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="36px" height="36px" viewBox="0 0 36 36" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 53.2 (72643) - https://sketchapp.com -->
+    <title>Group 3</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <rect id="path-1" x="0" y="0" width="28" height="28" rx="2"></rect>
+        <filter x="-26.8%" y="-19.6%" width="146.4%" height="146.4%" filterUnits="objectBoundingBox" id="filter-2">
+            <feOffset dx="-1" dy="1" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="2" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.245684003 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="Clusters-&amp;-DCM/DCMR" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Level-2" transform="translate(-1339.000000, -145.000000)">
+            <g id="Zoom-Default" transform="translate(1292.000000, 148.000000)">
+                <g id="Group-3" transform="translate(52.000000, 0.000000)">
+                    <g id="Rectangle">
+                        <use fill="black" fill-opacity="1" filter="url(#filter-2)" xlink:href="#path-1"></use>
+                        <use fill="#0F76CF" fill-rule="evenodd" xlink:href="#path-1"></use>
+                    </g>
+                    <g id="Icon/Zoom-In" transform="translate(5.000000, 5.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                        <path d="M14.25,8.25 C14.453126,8.25 14.6289055,8.32421801 14.7773438,8.47265625 C14.925782,8.62109449 15,8.79687398 15,9 C15,9.20312602 14.925782,9.37890551 14.7773438,9.52734375 C14.6289055,9.67578199 14.453126,9.75 14.25,9.75 L9.75,9.75 L9.75,14.25 C9.75,14.453126 9.67578199,14.6289055 9.52734375,14.7773438 C9.37890551,14.925782 9.20312602,15 9,15 C8.79687398,15 8.62109449,14.925782 8.47265625,14.7773438 C8.32421801,14.6289055 8.25,14.453126 8.25,14.25 L8.25,9.75 L3.75,9.75 C3.54687398,9.75 3.37109449,9.67578199 3.22265625,9.52734375 C3.07421801,9.37890551 3,9.20312602 3,9 C3,8.79687398 3.07421801,8.62109449 3.22265625,8.47265625 C3.37109449,8.32421801 3.54687398,8.25 3.75,8.25 L8.25,8.25 L8.25,3.75 C8.25,3.54687398 8.32421801,3.37109449 8.47265625,3.22265625 C8.62109449,3.07421801 8.79687398,3 9,3 C9.20312602,3 9.37890551,3.07421801 9.52734375,3.22265625 C9.67578199,3.37109449 9.75,3.54687398 9.75,3.75 L9.75,8.25 L14.25,8.25 Z" id="Zoom-In"></path>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

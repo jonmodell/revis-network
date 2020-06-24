@@ -1,0 +1,42 @@
+{
+  "parser": "babel-eslint",
+  "extends": [
+    "airbnb",
+    "standard",
+    "standard-react",
+    "prettier",
+    "plugin:prettier/recommended",
+    "prettier/standard",
+    "prettier/react"
+  ],
+  "env": {
+    "node": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "ecmaFeatures": {
+      "legacyDecorators": true,
+      "jsx": true
+    }
+  },
+  "settings": {
+    "react": {
+      "version": "16"
+    },
+    "import/external-module-folders": ["node_modules", "../../node_modules"],
+  },
+  "rules": {
+    "space-before-function-paren": 0,
+    "prefer-destructuring": 0,
+    "react/prop-types": 0,
+    "react/jsx-handler-names": 0,
+    "react/jsx-fragments": 0,
+    "react/no-unused-prop-types": 0,
+    "react/destructuring-assignment": 0,
+    "import/export": 0,
+    "import/no-extraneous-dependencies": 0,
+    "react/no-multi-comp": 0,
+    "import/no-duplicates": 1,
+    "no-restricted-syntax": 0,
+  }
+}

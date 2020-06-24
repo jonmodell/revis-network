@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="36px" height="36px" viewBox="0 0 36 36" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 53.2 (72643) - https://sketchapp.com -->
+    <title>Group 2</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <rect id="path-1" x="0" y="0" width="28" height="28" rx="2"></rect>
+        <filter x="-26.8%" y="-19.6%" width="146.4%" height="146.4%" filterUnits="objectBoundingBox" id="filter-2">
+            <feOffset dx="-1" dy="1" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="2" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.245684003 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="Clusters-&amp;-DCM/DCMR" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Level-2" transform="translate(-1287.000000, -186.000000)">
+            <g id="Zoom-Default" transform="translate(1292.000000, 148.000000)">
+                <g id="Group-2" transform="translate(0.000000, 41.000000)">
+                    <g id="Rectangle-Copy-5">
+                        <use fill="black" fill-opacity="1" filter="url(#filter-2)" xlink:href="#path-1"></use>
+                        <use fill="#0F76CF" fill-rule="evenodd" xlink:href="#path-1"></use>
+                    </g>
+                    <g id="Icon/Zoom-Out" transform="translate(5.000000, 5.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                        <path d="M14.25,8.44444444 C14.453126,8.44444444 14.6289055,8.54889942 14.7773438,8.7578125 C14.925782,8.96672558 15,9.21411894 15,9.5 C15,9.78588106 14.925782,10.0332744 14.7773438,10.2421875 C14.6289055,10.4511006 14.453126,10.5555556 14.25,10.5555556 L3.75,10.5555556 C3.54687398,10.5555556 3.37109449,10.4511006 3.22265625,10.2421875 C3.07421801,10.0332744 3,9.78588106 3,9.5 C3,9.21411894 3.07421801,8.96672558 3.22265625,8.7578125 C3.37109449,8.54889942 3.54687398,8.44444444 3.75,8.44444444 L14.25,8.44444444 Z" id="Zoom-Out"></path>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
