@@ -35,7 +35,7 @@ export function drawImage(ctx, definition, images, size) {
       ctx.beginPath();
       const imgRatio = (img.height / img.width).toFixed(2); // an attempt to keep the image ratio constant
       // save and restore are just for translations /  x and y could be used in drawing instead
-      ctx.drawImage(img, (size / 2) -imgSize / 2 + offsetX, size * 0.2 + offsetY, imgSize, imgSize * imgRatio);
+      ctx.drawImage(img, (size / 2) -imgSize / 2 + offsetX, (size * 0.2) + offsetY, imgSize, imgSize * imgRatio);
     }
   }
 }

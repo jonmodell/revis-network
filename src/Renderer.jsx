@@ -2,7 +2,8 @@
 /* eslint-disable no-param-reassign, no-unused-expressions, no-undef */
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { ZoomControls, HoverPopup, Edge, Node } from './components';
+import { isEqual } from 'lodash';
+import { ZoomControls, HoverPopup } from './components';
 import { ActionLayer, EditLayer } from './renderingLayers';
 import { inViewPort } from './util';
 
@@ -118,6 +119,8 @@ class Renderer extends Component {
     this.lastScale = null;
     this.lastRollOver = props.rolloverState;
     this.lastScreen = null;
+    this.lastOptions = null;
+    this.dirty = false;
   }
 
   componentDidMount() {
@@ -126,6 +129,10 @@ class Renderer extends Component {
 
   shouldComponentUpdate(props, prevProps) {
     return true;
+  }
+
+  componentDidUpdate() {
+    this.dirty = true;
   }
 
   componentWillUnmount() {
@@ -156,20 +163,9 @@ class Renderer extends Component {
     // const draw = this.draw.bind(this);
     const ps = this.props.panScaleState;
     const is = this.props.interactionState;
-    const rs = this.props.rolloverState;
-    const ss = this.props.screen;
-    if (
-      is.action ||
-      ps.destinationPan ||
-      ps.destinationScale ||
-      ps.scale !== this.lastScale ||
-      rs !== this.lastRollOver ||
-      ss !== this.lastScreen
-    ) {
-      this.lastScale = ps.scale;
-      this.lastRollOver = rs;
-      this.lastScreen = ss;
+    if (this.dirty || is.action || ps.destinationPan || ps.destinationScale) {
       this.draw();
+      this.dirty = false;
     }
   };
 
@@ -226,7 +222,7 @@ class Renderer extends Component {
     ctx.clearRect(0, 0, width, height);
     ctx.transform(scale, 0, 0, scale, pan.x, pan.y);
     items.forEach((i) => {
-      if (i.visible !== false){
+      if (i.visible !== false) {
         const style = { ...DEFAULT_SHAPE_STYLE, ...(i.style || {}) };
         // draw
         ctx.save();

@@ -1,6 +1,12 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
-import { withKnobs, text, boolean, number } from '@storybook/addon-knobs';
+import {
+  withKnobs,
+  text,
+  boolean,
+  number,
+  button,
+} from '@storybook/addon-knobs';
 import ReVisNetwork from '..';
 import data from '../examples/data/basic';
 // import moreData from '../examples/data/moreBasic';
@@ -21,6 +27,8 @@ const actions = {
   onMouse: action('onMouse'),
 };
 
+let callbackProps = null;
+
 export const Basic = () => (
   <div>
     <h2>
@@ -32,6 +40,11 @@ export const Basic = () => (
 );
 
 export const WithOptions = () => {
+  
+  const callbackFn = (props) => {
+    console.log('callback props', props);
+    callbackProps = props;
+  };
   const generateNodes = number('Number of Nodes', 0);
   const blockGraphInteraction = boolean('Block Interaction?', false);
   const showNodeLabels = boolean('Show Node Labels', true);
@@ -44,6 +57,14 @@ export const WithOptions = () => {
     max: 0.8,
     step: 0.05,
   });
+  const getPositions = button('Log Node Positions', () => {
+    const ret = callbackProps.gp();
+    console.log(ret);
+  });
+  const fit = button('Call Fit', () => {
+    callbackProps.fit();
+  });
+
   return (
     <div>
       <h2>A demonstration, with knobs below, of some basic options.</h2>
@@ -63,6 +84,7 @@ export const WithOptions = () => {
           blockGraphInteraction,
         }}
         images={images}
+        callbackFn={callbackFn}
       />
     </div>
   );
@@ -81,7 +103,9 @@ export const NodeShapes = () => (
 
 export const BorderColors = () => (
   <div>
-    <h2>Style added to the nodes and edges can provide color and line options.</h2>
+    <h2>
+      Style added to the nodes and edges can provide color and line options.
+    </h2>
     <ReVisNetwork
       graph={shapeColorData}
       nodeDrawingFunction={nodeDrawing}
@@ -92,7 +116,9 @@ export const BorderColors = () => (
 
 export const ImagesAndInnerLabels = () => (
   <div>
-    <h2>You can also use svg or raster images as icons and add innerLabel props.</h2>
+    <h2>
+      You can also use svg or raster images as icons and add innerLabel props.
+    </h2>
     <ReVisNetwork
       graph={shapeIconData}
       options={{
@@ -107,10 +133,10 @@ export const ImagesAndInnerLabels = () => (
 
 export const NoZoomControls = () => (
   <div>
-    <h2>customControls allows you to implement your own controls, or hide the defaults.</h2>
-    <ReVisNetwork
-      graph={shapeIconData}
-      customControls={null}
-    />
+    <h2>
+      customControls allows you to implement your own controls, or hide the
+      defaults.
+    </h2>
+    <ReVisNetwork graph={shapeIconData} customControls={null} />
   </div>
 );

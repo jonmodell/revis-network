@@ -20,6 +20,7 @@ import {
   getMousePos,
   getNodeAtPosition,
   getNodeScreenPos,
+  getPositions,
   getScreenEdgePan,
   getPanScaleFromMouseWheel,
   getShapeAtPos,
@@ -44,6 +45,7 @@ const ReVisNetwork = (props: Props) => {
     nodeDrawingFunction,
     shapeDrawingFunction,
     shapes,
+    callbackFn,
   } = props;
   const layouter = props.layouter || defaultLayout;
 
@@ -80,14 +82,6 @@ const ReVisNetwork = (props: Props) => {
     ratio: window.devicePixelRatio || 1,
     boundingRect: baseCanvas.current?.getBoundingClientRect(),
   });
-
-  const getCallBacker = () => {
-    return {
-      fit: () => zoomHandler('all'),
-      zoomToSelection: () => zoomHandler('selection'),
-      getNodePositions: () => getPositions(nodes),
-    };
-  };
 
   const bounds = useMemo(
     () => getBounds(nodes.current.values() || [], shapes),
@@ -156,7 +150,6 @@ const ReVisNetwork = (props: Props) => {
     // node should not be allowed to become too small
     const { pos, ctrlClick, e } = payload;
     const iSt = interactionState;
-    const callBacker = getCallBacker();
     switch (type === 'dblclick' ? 'dblclick' : type.substr(5)) {
       case 'down': {
         // if a shape is already selected, check for handle clicks
@@ -171,7 +164,7 @@ const ReVisNetwork = (props: Props) => {
         // check for shape click and set edit shape id
         const shape = getShapeAtPos(shapes, pos);
         if (shape) {
-          om && om('shapeClick', shape, e, callBacker);
+          om && om('shapeClick', shape, e);
           shapes.splice(shapes.indexOf(shape), 1);
           shapes.push(shape);
           interactionDispatch({ type: 'shapeDown', payload: shape }); // pan
@@ -183,7 +176,7 @@ const ReVisNetwork = (props: Props) => {
       }
       case 'up': {
         if (iSt.shape && iSt.mouseMoved) {
-          om && om('shapesUpdate', [...shapes], e, callBacker);
+          om && om('shapesUpdate', [...shapes], e);
         }
         interactionDispatch({ type: 'shapeUp' });
         panScaleDispatch({
@@ -247,7 +240,6 @@ const ReVisNetwork = (props: Props) => {
       processShapeEdit(type, payload);
     } else {
       const iSt = interactionState;
-      const callBacker = getCallBacker();
       switch (type === 'dblclick' ? 'dblclick' : type.substr(5)) {
         case 'down': {
           const { pos, ctrlClick, e } = payload;
@@ -260,14 +252,14 @@ const ReVisNetwork = (props: Props) => {
           );
           if (n) {
             // drag if we clicked on a node
-            om && om('nodeClick', n, e, callBacker);
+            om && om('nodeClick', n, e);
             draggedNodes.add(n);
             interactionDispatch({
               type: 'addToDrag',
               payload: [...draggedNodes],
             });
           } else if (ed) {
-            om && om('edgeClick', ed, e, callBacker);
+            om && om('edgeClick', ed, e);
             interactionDispatch({
               type: 'edgeDown',
             });
@@ -285,12 +277,12 @@ const ReVisNetwork = (props: Props) => {
             !iSt.mouseMoved &&
             iSt.action !== 'edgeDown'
           ) {
-            om && om('backgroundClick', null, e, callBacker);
+            om && om('backgroundClick', null, e);
           }
 
           // if there were nodes dragging and there is a handler, alert the handler one more time
           if (iSt.draggedNodes.length && iSt.mouseMoved && props.onMouse) {
-            om && om('nodesDragged', iSt.draggedNodes, e, callBacker);
+            om && om('nodesDragged', iSt.draggedNodes, e);
           }
           interactionDispatch({ type: 'releaseDrag' }); // release dragging
           panScaleDispatch({
@@ -380,7 +372,7 @@ const ReVisNetwork = (props: Props) => {
           // check node collision
           const n = getNodeAtPosition(nodes.current, payload.pos);
           if (n) {
-            om && om('nodeDblClick', n, payload.e, callBacker);
+            om && om('nodeDblClick', n, payload.e);
             break;
           }
 
@@ -391,7 +383,7 @@ const ReVisNetwork = (props: Props) => {
             optionState.edges,
           );
           if (edge) {
-            om && om('edgeDblClick', edge, payload.e, callBacker);
+            om && om('edgeDblClick', edge, payload.e);
             break;
           }
 
@@ -643,7 +635,18 @@ const ReVisNetwork = (props: Props) => {
     },
     [nodes, edges, optionState],
   );
+
   // we need to detect changes to graph, options, nodeDrawing, edgeDrawing, shapeDrawing or layouter props
+  useEffect(() => {
+    callbackFn &&
+      callbackFn({
+        nodes,
+        getPositions,
+        gp: () => getPositions(nodes.current),
+        fit: () => zoomToFit(),
+      });
+  }, []);
+
   useEffect(() => {
     checkGraph(graph);
   }, [checkGraph, graph]);
@@ -660,6 +663,7 @@ const ReVisNetwork = (props: Props) => {
     return (
       <Renderer
         clearHover={clearHover}
+        customControls={props.customControls}
         edges={edges.current}
         handleKey={handleKey}
         handleMouse={handleMouse}

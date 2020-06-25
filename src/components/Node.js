@@ -59,7 +59,7 @@ export default class Node {
 
     // NODE BASE SIZE SHOULD CHANGE WHEN node.definition.style.size OR node.definition.size changes only
     const size =
-      ((style.size || this.definition.size || this.size) + (hovering ? 5 : 0)) // * scaleCoeficient;
+      (style.size || this.definition.size || this.size) + (hovering ? 5 : 0); // * scaleCoeficient;
 
     // this.bSize must be set because it is used publicly by collision detection, but it is still just the node's (baseSize (+5 if hovering)) / scaleFactor
     this.bSize = size;
@@ -113,18 +113,20 @@ export default class Node {
 
     // text
     ctx.save(); // saving where we drew the shape
-    ctx.translate(size * 0.5, size * 0.8); // traslate back to the center point horizontally and 80% vertically
     const fontSize = 6;
+    ctx.translate(size * 0.5, size * 0.7 + fontSize * 0.7); // traslate back to the center point horizontally and 80% vertically
 
     // inner text
     if (this.definition.innerLabel) {
       const lbl = this.definition.innerLabel;
       const allowedCharacters =
         scaleCoeficient < 1 ? MAX_INNER_LABEL_CHARS : MIN_INNER_LABEL_CHARS;
-      drawText(ctx, lbl, innerLabelColor, fontSize * 0.5, allowedCharacters);
+      drawText(ctx, lbl, innerLabelColor, fontSize * 0.7, allowedCharacters);
     }
+    ctx.restore();
 
-    ctx.translate(0, size * 0.4);
+    ctx.save();
+    ctx.translate(size / 2, size + fontSize);
 
     // outer label
     const lbl = this.definition.label;

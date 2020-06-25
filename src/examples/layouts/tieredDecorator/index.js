@@ -191,7 +191,6 @@ const renderDecorations = ({
   extras: { groupings },
   options: { decoratorSpacing, verticalNodeSpacing },
 }) => {
-  console.log('render decos', shapes, groupings);
   if (shapes?.length) {
     shapes.forEach((decoration) => {
       const decorationMatch = groupings.find(
@@ -214,7 +213,6 @@ const renderDecorations = ({
         decoration.visible = false;
       }
     });
-    console.log('decos', shapes);
   }
 };
 
@@ -263,7 +261,6 @@ const tieredHierarchical = (data, options, scr, onStopped) => {
   });
 
   const arrayedData = { nodes, edges, shapes: data.shapes };
-  console.log('aData', arrayedData);
 
   layoutNodes({ data: arrayedData, options: allOptions, scr });
 
