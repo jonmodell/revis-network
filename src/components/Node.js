@@ -21,15 +21,15 @@ style information.  The node would not hold status or state properties, those wo
 kept in the implementation - a list of selected, faded, etc... to figure out the style
 */
 export default class Node {
-  constructor(id, definition) {
+  constructor(id, definition, options) {
     this.id = id.toString();
 
     // definition can be set from the outside, and it can change
     this.definition = definition;
 
     // mass and size properties
-    this.bSize = definition.size || NODE_SIZE;
-    this.size = definition.size || NODE_SIZE;
+    this.size = definition.size || options?.nodes?.defaultSize || NODE_SIZE;
+    this.bSize = this.size;
     this.mass = definition.mass || 1;
 
     // location properties
@@ -59,7 +59,10 @@ export default class Node {
 
     // NODE BASE SIZE SHOULD CHANGE WHEN node.definition.style.size OR node.definition.size changes only
     const size =
-      (style.size || this.definition.size || this.size) + (hovering ? 5 : 0); // * scaleCoeficient;
+      (style.size ||
+        state?.options?.nodes?.defaultSize ||
+        this.definition.size ||
+        this.size) + (hovering ? 5 : 0); // * scaleCoeficient;
 
     // this.bSize must be set because it is used publicly by collision detection, but it is still just the node's (baseSize (+5 if hovering)) / scaleFactor
     this.bSize = size;
@@ -109,7 +112,9 @@ export default class Node {
     ctx.stroke();
 
     // image
-    drawImage(ctx, this.definition, images, size);
+    if (state.scale > 0.3) {
+      drawImage(ctx, this.definition, images, size);
+    }
 
     // text
     ctx.save(); // saving where we drew the shape

@@ -2,7 +2,6 @@ const SCREEN_PAN_MARGIN = 35;
 const ZOOM_FACTOR = 0.002;
 const MIN_ZOOM = 0.6;
 const MAX_ZOOM = 6;
-const NODE_SIZE = 30;
 
 // if we are dragging off screen, pan with the edges of the screen
 // the screenSettings.screenPan setting changes the pan by that amount during the ReVisNetwork.draw function
@@ -33,14 +32,15 @@ export function getNodeScreenPos(n, tracking) {
 }
 
 // figure out if a hover window should go left, right, above or below based on screen position
-export function getHoverPos(pos, screen, panScaleState, hoverOps) {
+export function getHoverPos(pos, screen, panScaleState, opts) {
+  const nodeSize = opts.nodes.defaultSize;
   const { width, height } = screen;
   const { scale } = panScaleState;
-  const x = pos.x > width * 0.5 ? pos.x - hoverOps.width : pos.x - 1 * scale;
+  const x = pos.x > width * 0.5 ? pos.x - opts.hover.width : pos.x - 1 * scale;
   const y =
     pos.y > height * 0.5
-      ? pos.y - hoverOps.height - NODE_SIZE
-      : pos.y + NODE_SIZE * scale;
+      ? pos.y - opts.hover.height - (nodeSize * scale) / 2
+      : pos.y + (nodeSize * scale) / 2;
   return { x, y };
 }
 
@@ -76,7 +76,10 @@ export function getEdgeAtPosition(edges, pos, edgeOptions) {
 }
 
 export const getBounds = (nds = [], shps = []) => {
-  const combined = [...nds, ...shps.filter(s => s.boundsIgnore === undefined )];
+  const combined = [
+    ...nds,
+    ...shps.filter((s) => s.boundsIgnore === undefined),
+  ];
   const first = combined[0];
   if (!first) {
     return false;
@@ -97,16 +100,17 @@ export const getBounds = (nds = [], shps = []) => {
   return bds;
 };
 
-export const getBoundsScale = (height, width, bounds) => {
-  const hf = height / (bounds.height + NODE_SIZE * 2); // height factor
-  const wf = width / (bounds.width + NODE_SIZE * 2); // width factor
+export const getBoundsScale = (height, width, bounds, opts) => {
+  const nodeSize = opts.nodes.defaultSize;
+  const hf = height / (bounds.height + nodeSize * 2); // height factor
+  const wf = width / (bounds.width + nodeSize * 2); // width factor
   return Math.min(hf, wf); // return the lesser of the 2
 };
 
-export function getPanScaleFromMouseWheel(e, panScaleState, screen, bounds) {
+export function getPanScaleFromMouseWheel(e, panScaleState, screen, bounds, opts) {
   const { scale, pan } = panScaleState;
   const { height, width, boundingRect } = screen;
-  const boundScale = getBoundsScale(height, width, bounds);
+  const boundScale = getBoundsScale(height, width, bounds, opts);
   const realMinZoom = Math.min(MIN_ZOOM, boundScale) * 0.95; // * 0.95 provides a margin
   const newScale = Math.min(
     Math.max(realMinZoom, scale - ZOOM_FACTOR * e.deltaY),
@@ -133,14 +137,14 @@ export function getPanScaleFromMouseWheel(e, panScaleState, screen, bounds) {
   return { ...panScaleState, scale: newScale, pan: newPan };
 }
 
-export function getFitToScreen(bounds, screen, padding) {
+export function getFitToScreen(bounds, screen, padding, opts) {
   if (!bounds) {
     return null;
   }
-
+  const nodeSize = opts.nodes.defaultSize;
   const { horizontal, vertical } = padding;
-  const hf = (screen.height - vertical) / (bounds.height + NODE_SIZE * 2);
-  const wf = (screen.width - horizontal) / (bounds.width + NODE_SIZE * 2);
+  const hf = (screen.height - vertical) / (bounds.height + nodeSize * 2);
+  const wf = (screen.width - horizontal) / (bounds.width + nodeSize * 2);
   const scale = Number(Math.min(hf, wf).toFixed(4));
   const x = screen.width / 2 - (bounds.width / 2 + bounds.minX) * scale;
   const y = screen.height / 2 - (bounds.height / 2 + bounds.minY) * scale;

@@ -49,15 +49,6 @@ function makeHexagon(ctx, s) {
   ctx.lineTo(h - radius * 2, radius);
   ctx.quadraticCurveTo(h, 0, h + radius * 2, radius);
 
-  /*
-  ctx.quadraticCurveTo(seg, hSeg, seg - radius, hSeg + radius);
-  ctx.lineTo(hSeg + radius, seg - radius);
-  ctx.quadraticCurveTo(hSeg, seg, hSeg - radius, seg - radius);
-  ctx.lineTo(radius, hSeg + radius);
-  ctx.quadraticCurveTo(0, hSeg, radius, hSeg - radius);
-  ctx.lineTo(hSeg - radius, radius);
-  ctx.quadraticCurveTo(hSeg, 0, hSeg + radius, radius);
-  */
   ctx.restore();
   ctx.closePath();
 }

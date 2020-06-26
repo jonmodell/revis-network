@@ -40,12 +40,12 @@ export const Basic = () => (
 );
 
 export const WithOptions = () => {
-  
   const callbackFn = (props) => {
     console.log('callback props', props);
     callbackProps = props;
   };
   const generateNodes = number('Number of Nodes', 0);
+  const nodeSize = number('Node Size', 30);
   const blockGraphInteraction = boolean('Block Interaction?', false);
   const showNodeLabels = boolean('Show Node Labels', true);
   const showEdgeLabels = boolean('Show Edge Labels', true);
@@ -74,6 +74,7 @@ export const WithOptions = () => {
         options={{
           nodes: {
             showLabels: showNodeLabels,
+            defaultSize: nodeSize,
           },
           edges: {
             showLabels: showEdgeLabels,

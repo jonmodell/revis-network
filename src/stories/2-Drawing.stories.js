@@ -109,6 +109,9 @@ export const Drawing = () => {
         nodeDrawingFunction={nodeDrawing}
         options={{
           blockGraphInteraction,
+          nodes: {
+            defaultSize: 60,
+          },
           edges: {
             lineStyle: 'straight',
           },

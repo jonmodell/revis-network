@@ -3,7 +3,7 @@ import { useReducer } from 'react';
 export const initialPanScaleState = {
   destinationScale: null,
   destinationPan: null,
-  scale: 1,
+  scale: 0.1,
   pan: { x: 300, y: 300 },
   panPerFrame: null,
 };

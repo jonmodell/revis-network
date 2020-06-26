@@ -78,30 +78,6 @@ const DEFAULT_SHAPE_STYLE = {
   font: '16px lato, Arial',
 };
 
-/*
-const RevisNetwork = props => {
-  // gives this instance a unique react key so you can have more than 1 map on a screen
-  this.identifier = identifier !== undefined ? identifier : uuid.v4();
-
-  // canvases and refs
-  this.nodesRef = useRef();
-  this.edgesRef = useRef();
-  this.shapesRef = useRef();
-  this.editRef = useRef();
-  this.containerRef = React.createRef();
-
-  return (
-  
-  )
-}
-
-function memoCompare(prevProps, nextProps) {
-  return false;
-}
-export default memo(ReVisNetwork, memoCompare);
-
-*/
-
 class Renderer extends Component {
   constructor(props) {
     super(props);

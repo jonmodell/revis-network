@@ -104,7 +104,7 @@ const ReVisNetwork = (props: Props) => {
       pos,
       screen(),
       psState,
-      optionState.hover,
+      optionState,
     );
     clearTimeout(hoverTimer.current);
     hoverTimer.current = setTimeout(() => {
@@ -116,32 +116,6 @@ const ReVisNetwork = (props: Props) => {
       });
     }, delay);
   };
-
-  /*
-      down -
-        check node down
-        check shape down
-
-      move
-        - check node move
-        - check shape move
-        - check node hover
-        - check shape hover
-
-      up
-        - if nodes or shapes dragging, dispatch nodesDragged or shapesDragged
-        - if no nodes or shapes dragging, background click
-        - release dragging
-
-      leave
-        - stop edge panning
-
-      double-click
-        - check node
-        - check edge
-        - zoom to point
-
-  */
 
   const processShapeEdit = (type, payload) => {
     const om = props.onMouse;
@@ -395,6 +369,7 @@ const ReVisNetwork = (props: Props) => {
             psState,
             screen(),
             bounds,
+            optionState
           );
           panScaleDispatch({
             type: 'destination',
@@ -419,7 +394,8 @@ const ReVisNetwork = (props: Props) => {
       e,
       psState,
       screen(),
-      getBounds(nodes.current.values(), shapes),
+      getBounds(nodes.current.values(), shapes, optionState),
+      optionState,
     );
     panScaleDispatch({ type: 'set', payload: st });
   };
@@ -468,7 +444,7 @@ const ReVisNetwork = (props: Props) => {
     interactionDispatch({ type: 'endLayout' });
     const b = getBounds(nodes.current.values(), shapes);
     const padding = optionState?.cameraOptions?.fitAllPadding || 10;
-    const v = getFitToScreen(b, screen(), padding);
+    const v = getFitToScreen(b, screen(), padding, optionState);
     panScaleDispatch({ type: 'destination', payload: v });
     return true;
   }, [nodes.current, shapes]);
@@ -476,7 +452,7 @@ const ReVisNetwork = (props: Props) => {
   const zoomHandler = (level) => {
     const scr = screen();
     const bds = getBounds(nodes.current.values(), shapes);
-    const newScale = getBoundsScale(scr.height, scr.width, bds);
+    const newScale = getBoundsScale(scr.height, scr.width, bds, optionState);
     let dn = null;
     switch (level) {
       case 'in':
@@ -610,7 +586,7 @@ const ReVisNetwork = (props: Props) => {
                 ),
               );
             } else {
-              mType.set(n.id, new VisualClass(n.id, n));
+              mType.set(n.id, new VisualClass(n.id, n, optionState));
             }
 
             dirty = dirty || !has;
