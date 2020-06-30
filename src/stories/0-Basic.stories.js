@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { action } from '@storybook/addon-actions';
 import {
   withKnobs,
@@ -44,7 +44,7 @@ export const WithOptions = () => {
     console.log('callback props', props);
     callbackProps = props;
   };
-  const generateNodes = number('Number of Nodes', 0);
+  const generateNodes = number('Number of Nodes', 4);
   const nodeSize = number('Node Size', 30);
   const blockGraphInteraction = boolean('Block Interaction?', false);
   const showNodeLabels = boolean('Show Node Labels', true);
@@ -64,12 +64,13 @@ export const WithOptions = () => {
   const fit = button('Call Fit', () => {
     callbackProps.fit();
   });
+  const graph = useMemo(() => randomData(generateNodes), [generateNodes]);
 
   return (
     <div>
       <h2>A demonstration, with knobs below, of some basic options.</h2>
       <ReVisNetwork
-        graph={generateNodes > 5 ? randomData(generateNodes) : data}
+        graph={graph}
         {...actions}
         options={{
           nodes: {

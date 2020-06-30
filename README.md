@@ -1,8 +1,11 @@
 # Revis-Network
 A react based canvas networking visualization pacakage
 
-This was built with using the react transform boilerplate from
-https://github.com/gaearon/react-transform-boilerplate
+The basic premis of this component is that you know your data, and can choose how you want it rendered.  Out of the box, revis supports dots with labels in a hierarchical display.  However, it is simple to supply your own node, edge and shape data, and your own layout functions to place them.  
+
+Support is also built in for mouse events like nodeClick, edgeClick, shapeClick, nodeDblClick, nodesDragged, backgroundClicked, shapeUpdated, etc... 
+
+The `graph` property must consist of { nodes: [], edges[] }.  If you want to use shapes, which are generally though of as nodes without data, rendered on a lower level, a separate array of `shapes` can be provided as a prop.
 
 ### Nodes: 
 An array of json objects that, at the very least have unique .id properties. It may also contain the following supported properties
@@ -17,6 +20,20 @@ An array of json objects that, at the very least have unique .id properties. It 
 
 Conceptually, the node will call it's nodeDrawingFunction if there is one.  In this way you can support named properties in any way you see fit.
 
+### Images - Node Icons
+We find that node icons are often re-used so they can be supplied seperately either as a json map of <Image /> elements or definitions with the following properties
+```
+{ 
+  element: the HTMLElement of the image
+  scale: based on the image's actual size being a scale of 1
+  offsetX: how may pixels at scale of 1 to move the icon horizontally
+  offsetY: how may pixels at scale of 1 to move the icon vertically
+
+}
+
+``
+
+
 ### Edges: 
 An arry of json objects that, at the very least have the following properties
 ```
@@ -27,33 +44,18 @@ An arry of json objects that, at the very least have the following properties
 }
 ```
 
-### Decorations:
-The ReVisDataset will create an array of .decoration instances.  This can be instantiated from JSON, or be left empty.
-
-For example, a decoration can be defined with x, y, width and height or even with an image source, and the default render will show as 
-a rectangle with the given coordinates and dimensions. 
-
-The REAL power of decorations: your layouter can use the defined decorators, or create it's own and add them to the dataset.  This 
-in conjunctions with an option on the network instance called .decoratorDrawingFunction can be used to draw most anything you can 
-imagine based on whatever data you provide dynamically.
-
-The decoratorDrawingFunction will be passed the canvas context, the current state, calculated style and the decoration instance, assuming 
-you will want to use the context to provide some drawing instructions based on the instance, state and style.
+### Shapes:
+Shapes must, at the very least have x, y, height, and width.  If no `shapeRenderingFunction` is supplied
 
 
-### Layers:
-Layers are handled outside of the RevisDataset and are expected to be an array of JSON objects with the following signature
+### Hover PopUp / Tooltip
+Support for a react component to be used when a node or edge is hovered is supplied through the options.  Revis will call a given function and pass in the hovered item.  This can be used to render a popup of your own design.
 
-```
-{
-  data: an array of nodes, preferably with ids and any properties needed to be drawn by the ..
-  drawingFunction: a function used to translate data items into drawing instructions for the canvas  
-  placement: "forground" or "background",
-  visible; true or false,
-}
-```
 
-Revis will create a canvas for each layer and pass the data through its own LayerItem class, which in turn will pass it through the drawing function.  Using foreground and background layers you can render drawings, text or images on seperate layers in front of, or behind, your graph.  See the `LayersandShapesExample.js` file in examples for a demonstration.
+### Other Props and Options
+
+
+
 
 ## Install and run Storybook
 
