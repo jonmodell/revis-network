@@ -1,6 +1,4 @@
 import React from 'react';
-import { action } from '@storybook/addon-actions';
-import { withKnobs, text, boolean, number } from '@storybook/addon-knobs';
 import ReVisNetwork from '..';
 import randomData from '../examples/data/random';
 import images from '../examples/data/images';

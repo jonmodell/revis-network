@@ -85,7 +85,7 @@ export const Drawing = () => {
   };
   const colorHandler = () => {
     const randomHex = () =>
-      '#' + ((Math.random() * 0xffffff) << 0).toString(16);
+      `#${((Math.random() * 0xffffff) << 0).toString(16)}`;
     const newData = [...shapeData];
     newData[newData.length - 1].style = { background: randomHex() };
   };

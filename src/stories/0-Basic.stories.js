@@ -1,12 +1,6 @@
 import React, { useMemo } from 'react';
 import { action } from '@storybook/addon-actions';
-import {
-  withKnobs,
-  text,
-  boolean,
-  number,
-  button,
-} from '@storybook/addon-knobs';
+import { withKnobs, boolean, number, button } from '@storybook/addon-knobs';
 import ReVisNetwork from '..';
 import data from '../examples/data/basic';
 // import moreData from '../examples/data/moreBasic';
@@ -41,7 +35,7 @@ export const Basic = () => (
 
 export const WithOptions = () => {
   const callbackFn = (props) => {
-    console.log('callback props', props);
+    console.log('callback props', props); // eslint-disable-line
     callbackProps = props;
   };
   const generateNodes = number('Number of Nodes', 4);
@@ -61,6 +55,7 @@ export const WithOptions = () => {
     const ret = callbackProps.gp();
     console.log(ret);
   });
+
   const fit = button('Call Fit', () => {
     callbackProps.fit();
   });
@@ -94,7 +89,10 @@ export const WithOptions = () => {
 
 export const NodeShapes = () => (
   <div>
-    <h2>Now with a nodeDrawingFunction that uses the node 'shape' property.</h2>
+    <h2>
+      Now with a nodeDrawingFunction that uses the node &quot;shape&quot;
+      property.
+    </h2>
     <ReVisNetwork
       graph={shapeData}
       nodeDrawingFunction={nodeDrawing}

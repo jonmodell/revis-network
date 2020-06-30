@@ -36,7 +36,11 @@
     "import/export": 0,
     "import/no-extraneous-dependencies": 0,
     "react/no-multi-comp": 0,
+    "react/jsx-props-no-spreading": 0,
+    "react/jsx-filename-extension": 0,
     "import/no-duplicates": 1,
     "no-restricted-syntax": 0,
+    "no-plusplus": 0,
+    "no-bitwise": 0
   }
 }

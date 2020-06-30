@@ -15,7 +15,7 @@ function makeCloud(ctx, width, height) {
   const x = width / 2;
   const y = height / 2;
   ctx.moveTo(x + x * Math.cos(0), y + y * Math.sin(0));
-  for (let side = 0; side < faces; side++ ) {
+  for (let side = 0; side < faces; side++) {
     ctx.quadraticCurveTo(
       x + x * 1.3 * Math.cos(((side + 0.5) * 2 * Math.PI) / faces),
       y + y * 1.3 * Math.sin(((side + 0.5) * 2 * Math.PI) / faces),
@@ -31,7 +31,7 @@ function makeRect(ctx, width, height) {
 
 function makePolygon(ctx, faces, x, y, width, height) {
   ctx.moveTo(x + width * Math.cos(0), y + height * Math.sin(0));
-  for (let side = 0; side < faces + 1; side++ ) {
+  for (let side = 0; side < faces + 1; side++) {
     ctx.lineTo(
       x + width * Math.cos((side * 2 * Math.PI) / faces),
       y + height * Math.sin((side * 2 * Math.PI) / faces),
@@ -49,7 +49,7 @@ function getLines(ctx, text, maxWidth) {
     const words = p.split(' ');
     let currentLine = words[0];
 
-    for (let i = 1; i < words.length; i++ ) {
+    for (let i = 1; i < words.length; i++) {
       const word = words[i];
       const width = ctx.measureText(`${currentLine} ${word}`).width;
       if (width < maxWidth) {
@@ -146,7 +146,14 @@ const makeShape = (ctx, node) => {
       makePolygon(ctx, 6, width / 2, width / 2, width / 2);
       break;
     case 'polygon':
-      makePolygon(ctx, node.faces, width / 2, height / 2, width / 2, height / 2);
+      makePolygon(
+        ctx,
+        node.faces,
+        width / 2,
+        height / 2,
+        width / 2,
+        height / 2,
+      );
       break;
     case 'image':
       makeImage(ctx, node);
