@@ -100,12 +100,7 @@ const ReVisNetwork = (props: Props) => {
 
   const setShowHover = (item, itemType, pos) => {
     const delay = optionState.hover.delay || 750;
-    const popupPosition = getHoverPos(
-      pos,
-      screen(),
-      psState,
-      optionState,
-    );
+    const popupPosition = getHoverPos(pos, screen(), psState, optionState);
     clearTimeout(hoverTimer.current);
     hoverTimer.current = setTimeout(() => {
       setHoverState({
@@ -369,7 +364,7 @@ const ReVisNetwork = (props: Props) => {
             psState,
             screen(),
             bounds,
-            optionState
+            optionState,
           );
           panScaleDispatch({
             type: 'destination',
@@ -441,13 +436,13 @@ const ReVisNetwork = (props: Props) => {
   };
 
   const zoomToFit = useCallback(() => {
-    interactionDispatch({ type: 'endLayout' });
+    setTimeout(() => interactionDispatch({ type: 'endLayout' }), 1000);
     const b = getBounds(nodes.current.values(), shapes);
     const padding = optionState?.cameraOptions?.fitAllPadding || 10;
     const v = getFitToScreen(b, screen(), padding, optionState);
     panScaleDispatch({ type: 'destination', payload: v });
     return true;
-  }, [nodes.current, shapes]);
+  }, [nodes.current.values(), shapes]);
 
   const zoomHandler = (level) => {
     const scr = screen();
@@ -628,7 +623,12 @@ const ReVisNetwork = (props: Props) => {
   }, [checkGraph, graph]);
 
   useEffect(() => {
-    setOptionState(merge(optionState, options));
+    if (options?.layoutOptions !== optionState?.layoutOptions) {
+      setOptionState(merge(optionState, options));
+      runLayout();
+    } else {
+      setOptionState(merge(optionState, options));
+    }
   }, [options]);
 
   useEffect(() => {

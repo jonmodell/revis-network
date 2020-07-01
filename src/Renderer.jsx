@@ -2,12 +2,11 @@
 /* eslint-disable no-param-reassign, no-unused-expressions, no-undef */
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { isEqual } from 'lodash';
 import { ZoomControls, HoverPopup } from './components';
 import { ActionLayer, EditLayer } from './renderingLayers';
 import { inViewPort } from './util';
 
-const MS_PER_RENDER = 30;
+const MS_PER_RENDER = 24;
 
 const Container = styled.div`
   display: block;
@@ -267,7 +266,9 @@ class Renderer extends Component {
     for (const item of items) {
       if (
         item.render !== undefined &&
-        (ref !== this.nodesRef || inViewPort(item, viewPort))
+        (ref !== this.nodesRef ||
+          item.destination ||
+          inViewPort(item, viewPort))
       ) {
         item.render(st, context, images, drawingFunction);
       }

@@ -339,9 +339,9 @@ export function setShapeByHandleDrag(si, handle, delta, ctrl) {
   ret.width = Math.max(ret.width, MIN_SHAPE_SIZE);
   ret.height = Math.max(ret.height, MIN_SHAPE_SIZE);
   if (ctrl) {
-    const larger = Math.max(ret.width, ret.height);
-    ret.height = larger;
-    ret.width = larger;
+    const smaller = Math.min(ret.width, ret.height);
+    ret.height = smaller;
+    ret.width = smaller;
   }
   return ret;
 }

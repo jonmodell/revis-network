@@ -229,7 +229,6 @@ const defaultOptions = {
   horizontalNodeSpacing: 100,
   verticalNodeSpacing: 200,
   decoratorSpacing: 20,
-  decoratorOffset: 50,
   groupingOrder: [
     'businessservice',
     'itservice',

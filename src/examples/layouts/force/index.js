@@ -17,7 +17,7 @@ The third parameter, screen, allows for inspection of the screen size
 **/
 
 const defaultOpts = {
-  forceNodeSpacing: 10,
+  forceNodeSpacing: 5,
   alphaMin: 0.05,
   forceType: 'directedTree',
 };
