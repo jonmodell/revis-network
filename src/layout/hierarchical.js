@@ -152,6 +152,9 @@ const hierarchical = (data, options, scr, onStopped) => {
     edges.push(value);
   });
   layoutNodes({ data: { nodes, edges }, scr, options: opts });
+  nodes.forEach((n) => {
+    delete n.width; // eslint-disable-line
+  });
 
   // call onStopped at end of pass
   if (onStopped) {

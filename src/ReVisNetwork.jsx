@@ -20,21 +20,47 @@ import {
   getMousePos,
   getNodeAtPosition,
   getNodeScreenPos,
-  getPositions,
+  getNodePositions,
   getScreenEdgePan,
   getPanScaleFromMouseWheel,
   getShapeAtPos,
   getHandleAtPos,
   setShapeByHandleDrag,
 } from './util';
-import { Props } from './types';
+import defaultLayout from './layout';
 import defaultOptions from './options';
 import Renderer from './Renderer';
 import Node from './components/Node';
 import Edge from './components/Edge';
-import defaultLayout from './layout';
 import usePanScale from './hooks/usePanScale';
 import useInteraction from './hooks/useInteraction';
+
+type CustomControlsFn = (
+  event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+) => void;
+
+type CustomControlsData = {
+  zoomIn: CustomControlsFn,
+  zoomOut: CustomControlsFn,
+  fitAll: CustomControlsFn,
+  fitSelection: CustomControlsFn,
+};
+
+type Props = {
+  className: string,
+  customControls: (data: CustomControlsData) => React.Node,
+  debug: boolean,
+  graph: { nodes: [any], edges: [any] },
+  images: {},
+  identifier: string,
+  layouter: (data: any, options: any, screen: any) => void,
+  nodeDrawingFunction: (context: any, definition: any, size: number) => void,
+  onMouse: (type: string, items: any, event: any, network: any) => void,
+  options: {},
+  reducer: () => { state: any },
+  shapes: [{ data: any, drawingFunction: () => void }],
+  shapeDrawingFunction: (context: any, definition: any, size: number) => void,
+};
 
 const ReVisNetwork = (props: Props) => {
   const {
@@ -139,13 +165,14 @@ const ReVisNetwork = (props: Props) => {
           interactionDispatch({ type: 'shapeDown', payload: shape }); // pan
           // set interaction state to shape dragging
         } else {
+          om && om('shapeBackgroundClick');
           interactionDispatch({ type: 'pan' }); // pan
         }
         break;
       }
       case 'up': {
         if (iSt.shape && iSt.mouseMoved) {
-          om && om('shapesUpdate', [...shapes], e);
+          om && om('shapeUpdate', [...shapes], e);
         }
         interactionDispatch({ type: 'shapeUp' });
         panScaleDispatch({
@@ -194,7 +221,7 @@ const ReVisNetwork = (props: Props) => {
       }
 
       case 'leave': {
-        console.log('leave');
+        // console.log('leave');
         break;
       }
       default:
@@ -225,7 +252,7 @@ const ReVisNetwork = (props: Props) => {
             draggedNodes.add(n);
             interactionDispatch({
               type: 'addToDrag',
-              payload: [...draggedNodes],
+              payload: Array.from(draggedNodes),
             });
           } else if (ed) {
             om && om('edgeClick', ed, e);
@@ -329,6 +356,9 @@ const ReVisNetwork = (props: Props) => {
           panScaleDispatch({
             type: 'framePan',
             payload: null,
+          });
+          interactionDispatch({
+            type: 'releaseDrag',
           });
           break;
         }
@@ -436,7 +466,7 @@ const ReVisNetwork = (props: Props) => {
   };
 
   const zoomToFit = useCallback(() => {
-    setTimeout(() => interactionDispatch({ type: 'endLayout' }), 1000);
+    setTimeout(() => interactionDispatch({ type: 'endLayout' }), 300);
     const b = getBounds(nodes.current.values(), shapes);
     const padding = optionState?.cameraOptions?.fitAllPadding || 10;
     const v = getFitToScreen(b, screen(), padding, optionState);
@@ -537,6 +567,7 @@ const ReVisNetwork = (props: Props) => {
 
   const runLayout = () => {
     interactionDispatch({ type: 'runLayout' });
+    if (!nodes.current) return false;
     layouter(
       {
         nodeMap: nodes.current,
@@ -547,6 +578,7 @@ const ReVisNetwork = (props: Props) => {
       screen(),
       zoomToFit,
     );
+    return true;
   };
 
   const checkGraph = useCallback(
@@ -580,10 +612,11 @@ const ReVisNetwork = (props: Props) => {
                   dupNumber,
                 ),
               );
+            } else if (has) {
+              mType.get(n.id).update(n);
             } else {
               mType.set(n.id, new VisualClass(n.id, n, optionState));
             }
-
             dirty = dirty || !has;
           }
         });
@@ -612,8 +645,8 @@ const ReVisNetwork = (props: Props) => {
     callbackFn &&
       callbackFn({
         nodes,
-        getPositions,
-        gp: () => getPositions(nodes.current),
+        getNodePositions,
+        getPositions: () => getNodePositions(nodes.current),
         fit: () => zoomToFit(),
       });
   }, []);
@@ -622,18 +655,15 @@ const ReVisNetwork = (props: Props) => {
     checkGraph(graph);
   }, [checkGraph, graph]);
 
+  // when options change, set the state
   useEffect(() => {
-    if (options?.layoutOptions !== optionState?.layoutOptions) {
-      setOptionState(merge(optionState, options));
-      runLayout();
-    } else {
-      setOptionState(merge(optionState, options));
-    }
+    setOptionState(merge(optionState, options));
   }, [options]);
 
+  // when layout or layout options change, run the layout again
   useEffect(() => {
-    interactionDispatch({ type: 'reset' });
-  }, [optionState.blockGraphInteraction, interactionDispatch, shapes]);
+    runLayout();
+  }, [options?.layoutOptions, layouter]);
 
   if (nodes.current && edges.current) {
     return (

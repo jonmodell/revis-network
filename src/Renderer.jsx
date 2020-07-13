@@ -1,6 +1,6 @@
 /* @flow */
 /* eslint-disable no-param-reassign, no-unused-expressions, no-undef */
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
 import { ZoomControls, HoverPopup } from './components';
 import { ActionLayer, EditLayer } from './renderingLayers';
@@ -190,7 +190,7 @@ class Renderer extends Component {
   drawShapes(items, ref, drawingFunction) {
     if (!items || !ref.current) return false;
     const ctx = ref.current.getContext('2d');
-    const { panScaleState, screen } = this.props;
+    const { panScaleState, screen, images } = this.props;
     const { scale, pan } = panScaleState;
     const { width, height } = screen;
     ctx.save();
@@ -223,7 +223,13 @@ class Renderer extends Component {
         } else if (i.image) {
           // image support is a little different
           const sc = i.scale || 1;
-          ctx.drawImage(i.image, 0, 0, i.width * sc, i.height * sc);
+          ctx.drawImage(
+            images[i.imageId] || i.image,
+            0,
+            0,
+            i.width * sc,
+            i.height * sc,
+          );
         }
 
         ctx.restore();
@@ -244,11 +250,11 @@ class Renderer extends Component {
     } = this.props;
     if (!items) return false;
     const { scale, pan } = panScaleState;
-    const { width, height, boundingRect } = screen;
+    const { width, height } = screen;
     const viewPort = {
       left: (-10 - pan.x) / scale,
       top: (-10 - pan.y) / scale,
-      right: (10 + boundingRect?.right - pan.x) / scale,
+      right: (10 + width - pan.x) / scale,
       bottom: (10 + height - pan.y) / scale,
     };
 
@@ -293,6 +299,7 @@ class Renderer extends Component {
       panScaleState,
       interactionState,
       uid,
+      shapes,
     } = this.props;
 
     const hideControls = customControls === null;
@@ -330,6 +337,7 @@ class Renderer extends Component {
           />
 
           <EditLayer
+            shapes={shapes}
             interactionState={interactionState}
             screen={screen}
             panScaleState={panScaleState}

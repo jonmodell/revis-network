@@ -1,28 +1,31 @@
 import React, { useRef, memo } from 'react';
 
 const HANDLE_OFFSET = 8;
+const DEF_COLOR = 'rgb(200,200,200)';
 
 const EditLayer = (props) => {
-  const { panScaleState, screen, interactionState } = props;
+  const { panScaleState, screen, interactionState, color, shapes } = props;
   const { shape, shapeHandle } = interactionState;
   const { height, width } = screen;
+
+  const drawColor = color || DEF_COLOR;
 
   const editRef = useRef();
 
   const drawHandle = (context, x, y, s, selected = false) => {
     if (selected) {
-      context.fillStyle = 'rgb(200,200,200)';
+      context.fillStyle = drawColor;
     }
     context.beginPath();
     context.rect(x, y, s, s);
     context.closePath();
     context.fill();
     if (selected) {
-      context.fillStyle = 'rgb(100,100,100)';
+      context.fillStyle = drawColor;
     }
   };
 
-  if (shape && editRef.current) {
+  if (shape && shapes.includes(shape) && editRef.current) {
     const { scale, pan } = panScaleState;
     const context = editRef.current.getContext('2d');
 
@@ -41,7 +44,7 @@ const EditLayer = (props) => {
     context.save();
     context.clearRect(0, 0, width, height);
     context.transform(scale, 0, 0, scale, pan.x, pan.y);
-    context.strokeStyle = 'rgb(100,100,100)';
+    context.strokeStyle = drawColor;
     context.lineWidth = 1 / scale;
 
     // bounding box
@@ -54,7 +57,7 @@ const EditLayer = (props) => {
     );
     context.closePath();
     context.stroke();
-    context.fillStyle = 'rgb(100,100,100)';
+    context.fillStyle = drawColor;
 
     drawHandle(context, l, t, handleSize, shapeHandle === 'tl');
     drawHandle(context, c, t, handleSize, shapeHandle === 'tc');

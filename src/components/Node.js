@@ -43,6 +43,13 @@ export default class Node {
     this.delete = true;
   }
 
+  update(definition) {
+    this.definition = definition;
+    if (definition.fixed === false) {
+      this.fixed = false;
+    }
+  }
+
   render(state, context, images, drawingFunction) {
     const hovering = state.rolloverItem === this;
     const { destination } = this;

@@ -18,6 +18,9 @@ export default class Edge {
   }
 
   getControlPoint() {
+    if (!this.start || !this.end) {
+      return { x: 0, y: 0 };
+    }
     const dn = this.dupNumber > 0 ? this.dupNumber - 2 : 0;
     const cp = {
       x: this.end.x + (this.end.x > this.start.x ? 1 : -1) * dn * 20,
@@ -67,12 +70,12 @@ export default class Edge {
     let lastX = x1;
     let lastY = y1;
     // create 10 line segments from different sectios of the curve
-    for (i = 1; i < 10; i++) {
+    for (i = 1; i < 16; i++) {
       t = 0.1 * i;
-      x =
-        Math.pow(1 - t, 2) * x1 + 2 * t * (1 - t) * viaX + Math.pow(t, 2) * x2;
-      y =
-        Math.pow(1 - t, 2) * y1 + 2 * t * (1 - t) * viaY + Math.pow(t, 2) * y2;
+      const tm2 = (1 - t) ** 2;
+      const t2 = t ** 2;
+      x = tm2 * x1 + 2 * t * (1 - t) * viaX + t2 * x2;
+      y = tm2 * y1 + 2 * t * (1 - t) * viaY + t2 * y2;
       if (i > 0) {
         // test out the distance from the point to each segment and find the min
         distance = this.getDistanceToLine(lastX, lastY, x, y, x3, y3);
@@ -86,6 +89,9 @@ export default class Edge {
 
   // used to help with mouseover / hover to determine how far a point is from this edge
   getDistanceFrom(pt, opts) {
+    if (!this.start || !this.end) {
+      return null;
+    }
     let ret = null;
     const st = this.start;
     const ed = this.end;
@@ -109,6 +115,10 @@ export default class Edge {
 
   destroy() {
     this.delete = true;
+  }
+
+  update(definition) {
+    this.definition = definition;
   }
 
   getQuadraticXY(coef, sx, sy, cp1x, cp1y, ex, ey) {
@@ -174,12 +184,15 @@ export default class Edge {
   }
 
   render(state, context) {
+    if (!this.start || !this.end) {
+      return false;
+    }
     const opts = state.options.edges;
     const op = this.oldPoints;
     const hovering = state.rolloverItem === this;
 
     // don't render if the node has the same start and end points - all calculations will = 0,0;
-    if (this.start.x === this.end.x && this.start.y === this.end.y) {
+    if (this.start?.x === this.end?.x && this.start?.y === this.end?.y) {
       return true;
     }
 
@@ -197,7 +210,6 @@ export default class Edge {
     const st = {
       ...DEFAULT_STYLE,
       ...(this.definition.style || {}),
-      ...(this.style || {}),
     };
     let color;
     const ctx = context;
@@ -217,7 +229,7 @@ export default class Edge {
     }
 
     const cp = this.cp;
-    const lineWidth = hovering ? 4 : st.lineWidth / state.scale;
+    const lineWidth = hovering ? 4 / state.scale : st.lineWidth / state.scale;
     ctx.save();
     ctx.translate(0, 0);
 

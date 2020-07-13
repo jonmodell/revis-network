@@ -6,19 +6,20 @@ const MAX_ZOOM = 6;
 // if we are dragging off screen, pan with the edges of the screen
 // the screenSettings.screenPan setting changes the pan by that amount during the ReVisNetwork.draw function
 export function getScreenEdgePan(sc, e) {
+  const br = sc.boundingRect;
   const d = SCREEN_PAN_MARGIN;
   const screenPan = { x: 0, y: 0 };
   // if the mouse x is less than the margin for panning, we change the screenPan
-  if (e.clientX < d) {
-    screenPan.x = d - e.clientX;
-  } else if (e.clientX > sc.width - d) {
-    screenPan.x = -(d - (sc.width - e.clientX));
+  if (e.clientX < d + br.left) {
+    screenPan.x = d + br.left - e.clientX;
+  } else if (e.clientX > br.width + br.left - d) {
+    screenPan.x = -(d - (br.width + br.left - e.clientX));
   }
 
-  if (e.clientY < d) {
-    screenPan.y = d - e.clientY;
-  } else if (e.clientY > sc.height - d) {
-    screenPan.y = -(d - (sc.height - e.clientY));
+  if (e.clientY < d + br.top) {
+    screenPan.y = d + br.top - e.clientY;
+  } else if (e.clientY > br.height + br.top - d) {
+    screenPan.y = -(d - (br.height + br.top - e.clientY));
   }
   return screenPan.x || screenPan.y ? screenPan : null;
 }
@@ -34,13 +35,14 @@ export function getNodeScreenPos(n, tracking) {
 // figure out if a hover window should go left, right, above or below based on screen position
 export function getHoverPos(pos, screen, panScaleState, opts) {
   const nodeSize = opts.nodes.defaultSize;
-  const { width, height } = screen;
+  const { width, height } = screen.boundingRect;
   const { scale } = panScaleState;
-  const x = pos.x > width * 0.5 ? pos.x - opts.hover.width : pos.x - 1 * scale;
+  const nodeOffset = (nodeSize * scale) / 2;
+  const x = pos.x > width * 0.5 ? pos.x - opts.hover.width : pos.x;
   const y =
     pos.y > height * 0.5
-      ? pos.y - opts.hover.height - (nodeSize * scale) / 2
-      : pos.y + (nodeSize * scale) / 2;
+      ? pos.y - opts.hover.height - nodeOffset
+      : pos.y + nodeOffset;
   return { x, y };
 }
 
@@ -68,7 +70,7 @@ export function getNodeAtPosition(nodes, pos) {
 // looks through the dataset and returns an edge at a given mouse position if there is one
 export function getEdgeAtPosition(edges, pos, edgeOptions) {
   for (const edge of edges.values()) {
-    if (edge.getDistanceFrom(pos, edgeOptions) < 5) {
+    if (edge.getDistanceFrom(pos, edgeOptions) < 10) {
       return edge;
     }
   }
@@ -78,21 +80,20 @@ export function getEdgeAtPosition(edges, pos, edgeOptions) {
 export const getBounds = (nds = [], shps = []) => {
   const combined = [
     ...nds,
-    ...shps.filter((s) => s.boundsIgnore === undefined),
+    ...shps.filter((s) => s && s.boundsIgnore === undefined),
   ];
   const first = combined[0];
   if (!first) {
-    return false;
+    return { maxX: 100, minX: 0, maxY: 100, minY: 0, width: 100, height: 100 };
   }
-
   const bds = { maxX: first.x, minX: first.x, maxY: first.y, minY: first.y };
   combined.forEach((n) => {
-    const newX = n.destination?.x || n.x;
-    const newY = n.destination?.y || n.y;
-    bds.maxX = Math.max(bds.maxX, newX + (n.width || n.size || 0));
-    bds.maxY = Math.max(bds.maxY, newY + (n.height || n.size || 0));
-    bds.minX = Math.min(bds.minX, newX - (n.width || n.size || 0));
-    bds.minY = Math.min(bds.minY, newY - (n.height || n.size || 0));
+    const newX = n.destination?.x || n.x || 0;
+    const newY = n.destination?.y || n.y || 0;
+    bds.maxX = Math.max(bds.maxX, newX + (n.width || n.size || 30));
+    bds.maxY = Math.max(bds.maxY, newY + (n.height || n.size || 30));
+    bds.minX = Math.min(bds.minX, newX - 30);
+    bds.minY = Math.min(bds.minY, newY - 30);
 
     bds.width = bds.maxX - bds.minX;
     bds.height = bds.maxY - bds.minY;
@@ -107,7 +108,13 @@ export const getBoundsScale = (height, width, bounds, opts) => {
   return Math.min(hf, wf); // return the lesser of the 2
 };
 
-export function getPanScaleFromMouseWheel(e, panScaleState, screen, bounds, opts) {
+export function getPanScaleFromMouseWheel(
+  e,
+  panScaleState,
+  screen,
+  bounds,
+  opts,
+) {
   const { scale, pan } = panScaleState;
   const { height, width, boundingRect } = screen;
   const boundScale = getBoundsScale(height, width, bounds, opts);
@@ -164,7 +171,7 @@ export const getMousePos = (e, screen, panZoomState) => {
   };
 };
 
-export const getPositions = (nodes) => {
+export const getNodePositions = (nodes) => {
   const ret = {};
   for (const node of nodes.values()) {
     ret[node.id] = { x: node.x, y: node.y };

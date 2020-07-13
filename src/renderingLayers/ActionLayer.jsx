@@ -1,4 +1,4 @@
-import React, { useRef, useLayoutEffect } from 'react';
+import React, { useRef, useLayoutEffect, useEffect, Fragment } from 'react';
 import ReactResizeDetector from 'react-resize-detector';
 
 const ActionLayer = (props) => {
