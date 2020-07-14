@@ -1,6 +1,6 @@
 {
   "name": "@sciencelogic/revis-network",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Network visualization engine with demo build on react-transform-boilerplate template.",
   "author": "jonmodell<jon@jonmodell.com>",
   "license": "MIT",
@@ -41,6 +41,7 @@
     "@storybook/preset-create-react-app": "^3.0.0",
     "@storybook/react": "^5.3.18",
     "babel-eslint": "^10.0.3",
+    "core-js": "3.1.3",
     "cross-env": "^7.0.2",
     "d3-force": "^2.0.1",
     "dagre": "^0.8.5",
@@ -61,17 +62,16 @@
     "prettier": "^2.0.4",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-scripts": "^3.4.1"
+    "react-scripts": "^3.4.1",
+    "styled-components": "^4.x"
   },
   "files": [
     "dist"
   ],
   "dependencies": {
-    "core-js": "3.1.3",
     "lodash": "^4.17.15",
     "ramda": "^0.27.0",
     "react-resize-detector": "^4.2.3",
-    "seedrandom": "^3.0.5",
-    "styled-components": "^4.0.0"
+    "seedrandom": "^3.0.5"
   }
 }
