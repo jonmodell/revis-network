@@ -49,6 +49,7 @@ function interactionReducer(state, action) {
         shape: null,
         shapeHandle: null,
         draggedNodes: [],
+        mouseMoved: false,
       };
     }
     case actionTypes.releaseDrag: {

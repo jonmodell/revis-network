@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import { mergeDeepRight, pipe, tap } from 'ramda';
 import {
   assignCoords,
@@ -153,7 +154,13 @@ const hierarchical = (data, options, scr, onStopped) => {
   });
   layoutNodes({ data: { nodes, edges }, scr, options: opts });
   nodes.forEach((n) => {
-    delete n.width; // eslint-disable-line
+    delete n.width;
+    delete n.parent;
+    delete n.isParent;
+    delete n.isChild;
+    delete n.children;
+    delete n.order;
+    delete n.rank;
   });
 
   // call onStopped at end of pass

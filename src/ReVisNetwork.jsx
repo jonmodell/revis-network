@@ -58,8 +58,9 @@ type Props = {
   onMouse: (type: string, items: any, event: any, network: any) => void,
   options: {},
   reducer: () => { state: any },
-  shapes: [{ data: any, drawingFunction: () => void }],
+  shapes: [any],
   shapeDrawingFunction: (context: any, definition: any, size: number) => void,
+  shouldRunLayouter: (prev, next) => boolean,
 };
 
 const ReVisNetwork = (props: Props) => {
@@ -72,6 +73,7 @@ const ReVisNetwork = (props: Props) => {
     shapeDrawingFunction,
     shapes,
     callbackFn,
+    shouldRunLayouter,
   } = props;
   const layouter = props.layouter || defaultLayout;
 
@@ -93,6 +95,7 @@ const ReVisNetwork = (props: Props) => {
 
   const nodes = useRef(new Map());
   const edges = useRef(new Map());
+  const shapesRef = useRef();
 
   const baseCanvas = useRef(null);
   const [screenState, setScreenState] = useState({
@@ -565,80 +568,106 @@ const ReVisNetwork = (props: Props) => {
     return true;
   };
 
-  const runLayout = () => {
+  const runLayout = useCallback(() => {
     interactionDispatch({ type: 'runLayout' });
     if (!nodes.current) return false;
     layouter(
       {
         nodeMap: nodes.current,
         edgeMap: edges.current,
-        shapes,
+        shapes: shapesRef.current,
       },
       optionState.layoutOptions,
       screen(),
       zoomToFit,
     );
     return true;
-  };
+  }, [
+    interactionDispatch,
+    layouter,
+    optionState.layoutOptions,
+    screen,
+    zoomToFit,
+    nodes,
+    edges,
+    shapesRef,
+  ]);
 
-  const checkGraph = useCallback(
-    (nextGraph) => {
-      const setGraphType = (gType, mType, VisualClass) => {
-        let dirty = false;
-        const dupMap = {};
-        gType.forEach((n) => {
-          const has = mType.has(n.id);
-          const diff = has && mType.get(n.id).definition !== n;
-          if (!has || diff) {
-            if (VisualClass === Edge) {
-              // duplicate ends degection
-              const to = n.to.toString();
-              const from = n.from.toString();
-              const toFrom = [to, from].sort().join('-');
-              let dupNumber = 0;
-              if (dupMap[toFrom] !== undefined) {
-                dupNumber = dupMap[toFrom] + 1;
-                dupMap[toFrom] = dupNumber;
-              } else {
-                dupMap[toFrom] = 0;
-              }
-              mType.set(
-                n.id,
-                new VisualClass(
-                  n.id,
-                  n,
-                  nodes.current.get(to),
-                  nodes.current.get(from),
-                  dupNumber,
-                ),
-              );
-            } else if (has) {
-              mType.get(n.id).update(n);
+  const checkGraph = useCallback((nextGraph, nextShapes) => {
+    // gType is graph type, mType is the Map type that corresponds
+    const setGraphType = (gType, mType, VisualClass) => {
+      let dirty = false;
+      const dupMap = {};
+      gType.forEach((n) => {
+        const has = mType.has(n.id);
+        const diff = has && mType.get(n.id).definition !== n;
+        if (!has || diff) {
+          if (VisualClass === Edge) {
+            // duplicate ends degection
+            const to = n.to.toString();
+            const from = n.from.toString();
+            const toFrom = [to, from].sort().join('-');
+            let dupNumber = 0;
+            if (dupMap[toFrom] !== undefined) {
+              dupNumber = dupMap[toFrom] + 1;
+              dupMap[toFrom] = dupNumber;
             } else {
-              mType.set(n.id, new VisualClass(n.id, n, optionState));
+              dupMap[toFrom] = 0;
             }
-            dirty = dirty || !has;
+            mType.set(
+              n.id,
+              new VisualClass(
+                n.id,
+                n,
+                nodes.current.get(to),
+                nodes.current.get(from),
+                dupNumber,
+              ),
+            );
+          } else if (has) {
+            mType.get(n.id).update(n);
+          } else {
+            mType.set(n.id, new VisualClass(n.id, n, optionState));
           }
-        });
+          dirty = dirty || !has;
+        }
+      });
 
-        mType.forEach((value, key, map) => {
-          if (!gType.includes(value.definition)) {
-            mType.delete(key);
-            dirty = true;
-          }
-        });
-        return dirty;
-      };
+      // if this Map node is note included in the graph, delete it from the Map
+      mType.forEach((value, key, map) => {
+        if (!gType.includes(value.definition)) {
+          mType.delete(key);
+          dirty = true;
+        }
+      });
+      return dirty;
+    };
 
-      const nodesDirty = setGraphType(nextGraph.nodes, nodes.current, Node);
-      const edgesDirty = setGraphType(nextGraph.edges, edges.current, Edge);
-      const dirty = nodesDirty || edgesDirty;
-      if (dirty) {
-        runLayout();
-      }
-    },
-    [nodes, edges, optionState],
-  );
+    const shouldRunLayouterResult = shouldRunLayouter
+      ? shouldRunLayouter(
+          {
+            graph: {
+              nodes: [...nodes.current.values()],
+              edges: [...edges.current.values()],
+            },
+            shapes: shapesRef.current,
+          },
+          {
+            graph: nextGraph,
+            shapes: shapes,
+          },
+        )
+      : false;
+
+    const nodesDirty = setGraphType(nextGraph.nodes, nodes.current, Node);
+    const edgesDirty = setGraphType(nextGraph.edges, edges.current, Edge);
+    shapesRef.current = nextShapes;
+    const dirty = nodesDirty || edgesDirty;
+
+    if (dirty || shouldRunLayouterResult) {
+      runLayout();
+    }
+  }, [shouldRunLayouter, runLayout, nodes, edges, shapesRef]);
 
   // we need to detect changes to graph, options, nodeDrawing, edgeDrawing, shapeDrawing or layouter props
   useEffect(() => {
@@ -652,8 +681,8 @@ const ReVisNetwork = (props: Props) => {
   }, []);
 
   useEffect(() => {
-    checkGraph(graph);
-  }, [checkGraph, graph]);
+    checkGraph(graph, shapes);
+  }, [checkGraph, graph, shapes]);
 
   // when options change, set the state
   useEffect(() => {
@@ -685,7 +714,7 @@ const ReVisNetwork = (props: Props) => {
         panScaleState={psState}
         rolloverState={rolloverState}
         screen={screenState}
-        shapes={shapes || []}
+        shapes={shapesRef.current || []}
         shapeDrawingFunction={shapeDrawingFunction}
         uid={uid}
         bounds={getBounds(nodes.current.values(), shapes)}
