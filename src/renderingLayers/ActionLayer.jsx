@@ -1,14 +1,8 @@
-import React, { useRef, useLayoutEffect, useEffect, Fragment } from 'react';
+import React, { useRef, useLayoutEffect, Fragment } from 'react';
 import ReactResizeDetector from 'react-resize-detector';
 
 const ActionLayer = (props) => {
-  const {
-    blockGraphInteraction,
-    handlers,
-    handleMouse,
-    handleMouseWheel,
-    handleKey,
-  } = props;
+  const { handlers, handleMouse, handleMouseWheel, handleKey } = props;
 
   const actionRef = useRef(null);
 
@@ -38,7 +32,7 @@ const ActionLayer = (props) => {
       <canvas
         ref={actionRef}
         tabIndex={0}
-        className={`action-canvas ${blockGraphInteraction ? 'blocked' : ''}`}
+        className='action-canvas'
         onWheel={handleMouseWheel}
         onMouseDown={handleMouse}
         onMouseMove={handleMouse}

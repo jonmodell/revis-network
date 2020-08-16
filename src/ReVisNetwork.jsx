@@ -57,7 +57,6 @@ type Props = {
   nodeDrawingFunction: (context: any, definition: any, size: number) => void,
   onMouse: (type: string, items: any, event: any, network: any) => void,
   options: {},
-  reducer: () => { state: any },
   shapes: [any],
   shapeDrawingFunction: (context: any, definition: any, size: number) => void,
   shouldRunLayouter: (prev, next) => boolean,
@@ -75,6 +74,7 @@ const ReVisNetwork = (props: Props) => {
     callbackFn,
     shouldRunLayouter,
   } = props;
+
   const layouter = props.layouter || defaultLayout;
 
   const { psState, panScaleDispatch } = usePanScale();
@@ -168,7 +168,7 @@ const ReVisNetwork = (props: Props) => {
           interactionDispatch({ type: 'shapeDown', payload: shape }); // pan
           // set interaction state to shape dragging
         } else {
-          om && om('shapeBackgroundClick');
+          om && om('backgroundClick');
           interactionDispatch({ type: 'pan' }); // pan
         }
         break;
@@ -198,13 +198,14 @@ const ReVisNetwork = (props: Props) => {
           break;
         }
 
-        if (iSt.action === 'shapeDrag') {
+        // only allow shapes to drag or resize if they don't have the noEdit flag
+        if (iSt.action === 'shapeDrag' && iSt.shape.noEdit !== true) {
           iSt.shape.x = Number(iSt.shape.x) + e.movementX / psState.scale;
           iSt.shape.y = Number(iSt.shape.y) + e.movementY / psState.scale;
           interactionDispatch({ type: 'shapeMove' });
         }
 
-        if (iSt.action === 'handleDrag') {
+        if (iSt.action === 'handleDrag' && iSt.shape.noEdit !== true) {
           const changes = setShapeByHandleDrag(
             iSt.shape,
             iSt.shapeHandle,
@@ -232,12 +233,14 @@ const ReVisNetwork = (props: Props) => {
     }
   };
 
+  /**
+   * if graph interactions are enabled, process those first and stop (return true).
+   * then, if shape interactions are enabled, process them
+   */
   const processMouseAction = (type, payload) => {
+    const iOps = optionState.interaction;
     const om = props.onMouse;
-    if (om && optionState.blockGraphInteraction) {
-      // if you have blocked basic interaction, you get regular mouse events with transformed cooridinates
-      processShapeEdit(type, payload);
-    } else {
+    if (iOps.allowGraphInteraction) {
       const iSt = interactionState;
       switch (type === 'dblclick' ? 'dblclick' : type.substr(5)) {
         case 'down': {
@@ -413,6 +416,11 @@ const ReVisNetwork = (props: Props) => {
         default:
           break;
       }
+      return true;
+    }
+
+    if (iOps.allowShapeInteraction) {
+      processShapeEdit(type, payload);
     }
     return true;
   };
@@ -593,81 +601,86 @@ const ReVisNetwork = (props: Props) => {
     shapesRef,
   ]);
 
-  const checkGraph = useCallback((nextGraph, nextShapes) => {
-    // gType is graph type, mType is the Map type that corresponds
-    const setGraphType = (gType, mType, VisualClass) => {
-      let dirty = false;
-      const dupMap = {};
-      gType.forEach((n) => {
-        const has = mType.has(n.id);
-        const diff = has && mType.get(n.id).definition !== n;
-        if (!has || diff) {
-          if (VisualClass === Edge) {
-            // duplicate ends degection
-            const to = n.to.toString();
-            const from = n.from.toString();
-            const toFrom = [to, from].sort().join('-');
-            let dupNumber = 0;
-            if (dupMap[toFrom] !== undefined) {
-              dupNumber = dupMap[toFrom] + 1;
-              dupMap[toFrom] = dupNumber;
-            } else {
-              dupMap[toFrom] = 0;
-            }
-            mType.set(
-              n.id,
-              new VisualClass(
+  const checkGraph = useCallback(
+    (nextGraph, nextShapes) => {
+      // gType is graph type, mType is the Map type that corresponds
+      const setGraphType = (gType, mType, VisualClass) => {
+        let dirty = false;
+        const dupMap = {};
+        gType.forEach((n) => {
+          const has = mType.has(n.id);
+          const diff = has && mType.get(n.id).definition !== n;
+          if (!has || diff) {
+            // edges only
+            if (VisualClass === Edge) {
+              // duplicate ends degection
+              const to = n.to.toString();
+              const from = n.from.toString();
+              const toFrom = [to, from].sort().join('-');
+              let dupNumber = 0;
+              if (dupMap[toFrom] !== undefined) {
+                dupNumber = dupMap[toFrom] + 1;
+                dupMap[toFrom] = dupNumber;
+              } else {
+                dupMap[toFrom] = 0;
+              }
+              mType.set(
                 n.id,
-                n,
-                nodes.current.get(to),
-                nodes.current.get(from),
-                dupNumber,
-              ),
-            );
-          } else if (has) {
-            mType.get(n.id).update(n);
-          } else {
-            mType.set(n.id, new VisualClass(n.id, n, optionState));
+                new VisualClass(
+                  n.id,
+                  n,
+                  nodes.current.get(to),
+                  nodes.current.get(from),
+                  dupNumber,
+                ),
+              );
+            } else if (has) {
+              mType.get(n.id).update(n);
+            } else {
+              mType.set(n.id, new VisualClass(n.id, n, optionState));
+            }
+            dirty = dirty || !has;
           }
-          dirty = dirty || !has;
-        }
-      });
+        });
 
-      // if this Map node is note included in the graph, delete it from the Map
-      mType.forEach((value, key, map) => {
-        if (!gType.includes(value.definition)) {
-          mType.delete(key);
-          dirty = true;
-        }
-      });
-      return dirty;
-    };
+        // if this Map node is note included in the graph, delete it from the Map
+        mType.forEach((value, key, map) => {
+          if (!gType.includes(value.definition)) {
+            mType.delete(key);
+            dirty = true;
+          }
+        });
+        return dirty;
+      };
 
-    const shouldRunLayouterResult = shouldRunLayouter
-      ? shouldRunLayouter(
-          {
-            graph: {
-              nodes: [...nodes.current.values()],
-              edges: [...edges.current.values()],
+      const shouldRunLayouterResult = shouldRunLayouter
+        ? shouldRunLayouter(
+            {
+              graph: {
+                nodes: [...nodes.current.values()],
+                edges: [...edges.current.values()],
+              },
+              shapes: shapesRef.current,
             },
-            shapes: shapesRef.current,
-          },
-          {
-            graph: nextGraph,
-            shapes: shapes,
-          },
-        )
-      : false;
+            {
+              graph: nextGraph,
+              shapes,
+            },
+          )
+        : false;
 
-    const nodesDirty = setGraphType(nextGraph.nodes, nodes.current, Node);
-    const edgesDirty = setGraphType(nextGraph.edges, edges.current, Edge);
-    shapesRef.current = nextShapes;
-    const dirty = nodesDirty || edgesDirty;
+      const nodesDirty = setGraphType(nextGraph.nodes, nodes.current, Node);
+      const edgesDirty = setGraphType(nextGraph.edges, edges.current, Edge);
+      shapesRef.current = nextShapes;
 
-    if (dirty || shouldRunLayouterResult) {
-      runLayout();
-    }
-  }, [shouldRunLayouter, runLayout, nodes, edges, shapesRef]);
+      const dirty = nodesDirty || edgesDirty;
+
+      if (dirty || shouldRunLayouterResult) {
+        runLayout();
+      }
+    },
+    [shouldRunLayouter, runLayout, nodes, edges, shapesRef],
+  );
 
   // we need to detect changes to graph, options, nodeDrawing, edgeDrawing, shapeDrawing or layouter props
   useEffect(() => {
@@ -714,7 +727,7 @@ const ReVisNetwork = (props: Props) => {
         panScaleState={psState}
         rolloverState={rolloverState}
         screen={screenState}
-        shapes={shapesRef.current || []}
+        shapes={shapes || []}
         shapeDrawingFunction={shapeDrawingFunction}
         uid={uid}
         bounds={getBounds(nodes.current.values(), shapes)}

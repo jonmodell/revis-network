@@ -4,7 +4,14 @@ const HANDLE_OFFSET = 8;
 const DEF_COLOR = 'rgb(200,200,200)';
 
 const EditLayer = (props) => {
-  const { panScaleState, screen, interactionState, color, shapes } = props;
+  const {
+    panScaleState,
+    screen,
+    interactionState,
+    color,
+    shapes,
+    showMutedOverlay,
+  } = props;
   const { shape, shapeHandle } = interactionState;
   const { height, width } = screen;
 
@@ -77,7 +84,7 @@ const EditLayer = (props) => {
     <canvas
       ref={editRef}
       tabIndex={0}
-      className={`edit-canvas ${shape ? 'editing' : ''}`}
+      className={`edit-canvas ${showMutedOverlay ? 'editing' : ''}`}
       width={width}
       height={height}
     />

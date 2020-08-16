@@ -30,10 +30,6 @@ const Container = styled.div`
       outline: none;
     }
 
-    &.action-canvas {
-      &.blocked {
-      }
-    }
     &.editing {
       background: rgba(250, 250, 250, 0.3);
     }
@@ -220,11 +216,11 @@ class Renderer extends Component {
             ctx.fill();
           }
           ctx.stroke();
-        } else if (i.image) {
+        } else if (i.image || i.mapImageId || i.imageId) {
           // image support is a little different
           const sc = i.scale || 1;
           ctx.drawImage(
-            images[i.imageId] || i.image,
+            images[i.mapImageId] || images[i.imageId] || i.image,
             0,
             0,
             i.width * sc,
@@ -337,6 +333,7 @@ class Renderer extends Component {
           />
 
           <EditLayer
+            showMutedOverlay={options.showMutedOverlay || false}
             shapes={shapes}
             interactionState={interactionState}
             screen={screen}
@@ -344,7 +341,6 @@ class Renderer extends Component {
           />
 
           <ActionLayer
-            blockGraphInteraction={options.blockGraphInteraction || false}
             handlers={handlers}
             handleMouse={handleMouse}
             handleMouseWheel={handleMouseWheel}

@@ -25,7 +25,11 @@ const options = {
     nodeRenderer: null,
     delay: 750,
   },
-  blockGraphInteraction: false,
+  interaction: {
+    allowGraphInteraction: true,
+    allowShapeInteraction: false,
+  },
+  showMutedOverlay: false,
 };
 
 export default options;
