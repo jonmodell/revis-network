@@ -6,7 +6,7 @@ import { ZoomControls, HoverPopup } from './components';
 import { ActionLayer, EditLayer } from './renderingLayers';
 import { inViewPort } from './util';
 
-const MS_PER_RENDER = 24;
+const MS_PER_RENDER = 30;
 
 const Container = styled.div`
   display: block;
@@ -210,22 +210,25 @@ class Renderer extends Component {
         }
 
         if (i.shape && i.shape !== 'image') {
-          // not an image
           ctx.closePath();
           if (style && style.fill !== null) {
             ctx.fill();
           }
           ctx.stroke();
-        } else if (i.image || i.mapImageId || i.imageId) {
-          // image support is a little different
-          const sc = i.scale || 1;
-          ctx.drawImage(
-            images[i.mapImageId] || images[i.imageId] || i.image,
-            0,
-            0,
-            i.width * sc,
-            i.height * sc,
-          );
+
+          // image support
+        } else if (i.mapImageId || i.imageId || i.image) {
+          const imageData =
+            images[i.mapImageId] || images[i.imageId] || i.image;
+          if (
+            imageData &&
+            (imageData instanceof HTMLImageElement ||
+              imagedData instanceof SVGImageElement ||
+              imageData instanceof HTMLCanvasElement)
+          ) {
+            const sc = i.scale || 1;
+            ctx.drawImage(imageData, 0, 0, i.width * sc, i.height * sc);
+          }
         }
 
         ctx.restore();
