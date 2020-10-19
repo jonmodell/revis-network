@@ -70,7 +70,7 @@ export default class Edge {
     let lastX = x1;
     let lastY = y1;
     // create 10 line segments from different sectios of the curve
-    for (i = 1; i < 16; i++) {
+    for (i = 1; i < 10; i++) {
       t = 0.1 * i;
       const tm2 = (1 - t) ** 2;
       const t2 = t ** 2;

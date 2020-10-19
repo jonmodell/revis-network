@@ -117,6 +117,8 @@ const ReVisNetwork = (props: Props) => {
     [nodes, edges, shapes, getBounds],
   );
 
+  const getCamera = useCallback(() => ({ ...psState }), [psState]);
+
   const clearHover = () => {
     clearTimeout(hoverTimer.current);
     if (hoverState.item) {
@@ -689,9 +691,10 @@ const ReVisNetwork = (props: Props) => {
         nodes,
         getNodePositions,
         getPositions: () => getNodePositions(nodes.current),
+        getCamera: () => getCamera(),
         fit: () => zoomToFit(),
       });
-  }, []);
+  }, [psState]);
 
   useEffect(() => {
     checkGraph(graph, shapes);
